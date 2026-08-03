@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sol–Terra–Luna Orchestrator"
+  short_description: "Route work across Sol, Terra Max, and Luna Max"
+  default_prompt: "Use $orchestrate-sol-terra-luna to coordinate this coding task with Sol, Terra Max, and Luna Max."
