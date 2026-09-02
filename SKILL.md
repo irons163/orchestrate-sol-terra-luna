@@ -1,47 +1,47 @@
 ---
 name: orchestrate-sol-terra-luna
-description: "Keep GPT-5.6 Sol in the main thread as the lead orchestrator, delegate difficult but clearly bounded work to GPT-5.6 Terra Max, and assign clear, repeatable work to GPT-5.6 Luna Max. Use when the user requests Sol orchestration, Terra Max or Luna Max subagents, tiered multi-agent coding, parallel code review, module analysis, independent feature implementation, testing, debugging, or result integration. Check model and Max reasoning availability before starting. If any required capability is unavailable, stop all work and explain how to enable it; proceed only after availability is confirmed."
+description: "讓 GPT-5.6 Sol 留在主線程（main thread）擔任總指揮，將困難但邊界清楚的工作交給 GPT-5.6 Terra Max，將清楚、可重複的工作交給 GPT-5.6 Luna Max。當使用者要求 Sol 總指揮、Terra Max 或 Luna Max subagent、分層 multi-agent coding、平行 code review、模組分析、獨立功能實作、測試、debugging 或整合結果時使用；開始前檢查模型與 Max reasoning 是否可用，若任一必要模型或 Max 不可用，完整停止所有工作並告知如何開啟，確認可用後才執行。"
 ---
 
 # Sol–Terra–Luna Orchestration
 
-Keep Sol in the main thread to understand the objective, break down tasks, make architectural decisions, verify completion, and integrate results. Delegate difficult but clearly bounded work to Terra Max, and clear, repeatable, easily verifiable work to Luna Max.
+讓 Sol 保留主線程，負責理解目標、拆分任務、架構判斷、驗收與整合。把困難但邊界明確的工作交給 Terra Max，把清楚、可重複且容易驗證的工作交給 Luna Max。
 
-## 1. Check capabilities first (the only permitted preliminary work)
+## 1. 先做能力預檢（唯一允許的前置工作）
 
-Before interpreting, breaking down, or executing the user's substantive task, check the capabilities actually exposed by the current environment. Do not rely on model memory or assumptions:
+在理解、拆解或執行使用者的實質任務前，先檢查目前執行環境實際暴露的能力，不要依賴模型記憶或假設：
 
-1. When observable, confirm that the main thread uses `gpt-5.6-sol`. If it is known to use another model, apply the complete hard stop and ask the user to switch. If the main thread's model cannot be observed, do not block solely for that reason.
-2. Confirm that subagents can explicitly select `gpt-5.6-terra` and `gpt-5.6-luna`.
-3. Confirm that both models can explicitly select `max` reasoning effort.
-4. If the tool declares support but an actual launch is rejected because of model or reasoning incompatibility, treat that capability as unavailable.
-5. Proceed to Section 2 only after confirming the availability of Sol in the main thread (when observable), `Terra Max`, and `Luna Max`.
+1. 在可觀察時，確認主線程使用 `gpt-5.6-sol`。若已知不是 Sol，套用完整 hard stop 並請使用者切換；若無法觀察，不要僅因此阻塞。
+2. 確認子代理可明確指定 `gpt-5.6-terra` 與 `gpt-5.6-luna`。
+3. 確認兩者都可明確指定 `max` reasoning effort。
+4. 若工具宣告支援、但實際啟動遭模型或 reasoning 相容性拒絕，將該能力視為不可用。
+5. 只有主線程 Sol（在可觀察時）、`Terra Max` 與 `Luna Max` 都確認可用後，才能進入第 2 節。
 
-Do not use the App's Max visibility setting in the model picker as a capability check. That setting only controls whether Max appears in the composer; `model_reasoning_effort = "max"` in a custom agent file directly specifies the spawned session's reasoning effort. Use the subagent tool declarations and actual launch results as the criteria.
+不要把 App 的 model picker 是否勾選 Max 當成能力預檢條件。該選項只控制 composer 中是否顯示 Max；custom agent 檔案中的 `model_reasoning_effort = "max"` 會直接指定 spawned session 的 reasoning。以 subagent 工具宣告與實際啟動結果作為判準。
 
-### Any required capability is unavailable: complete hard stop
+### 任一必要能力不可用：完整 hard stop
 
-If Sol in the main thread, `Terra Max`, `Luna Max`, or any required model/reasoning combination is unavailable, immediately stop the entire workflow, not just delegation. Apart from checking capabilities and explaining how to enable them, do not run tools or advance the substantive task. This includes:
+若缺少主線程 Sol、`Terra Max`、`Luna Max` 或其中任一必要模型／reasoning 組合，立即停止整個工作流，不只是停止委派。除確認能力與提供開啟說明外，不得執行任何工具或推進實質任務，包括：
 
-- Do not read or inventory the project, code, documents, or external data.
-- Do not perform architecture design, compliance boundary analysis, requirements breakdown, risk analysis, or test planning.
-- Do not create substitute subagents or let Sol proceed alone with main-thread work that could otherwise be done safely.
-- Do not downgrade to `high`, `xhigh`, or another model/reasoning configuration on your own.
+- 不讀取或盤點專案、程式碼、文件與外部資料。
+- 不進行架構設計、法遵邊界、需求拆解、風險分析或測試規劃。
+- 不建立任何替代子代理，也不讓 Sol 單獨先做可安全推進的主線工作。
+- 不自行降級成 `high`、`xhigh` 或其他模型／reasoning 設定。
 
-Do not introduce exceptions such as "This does not prevent Sol from first working on..." While this skill is active, a missing required capability is a complete stopping condition. Use a different workflow only if the user explicitly cancels this skill or explicitly changes the required model combination.
+不得使用「這不妨礙 Sol 主線程先做……」之類的例外。此 skill 啟用期間，缺少必要能力就是完整停止條件。只有使用者明確取消此 skill 或明確改變所需模型組合時，才能採用其他工作流。
 
-The only permitted setup exception: if the user explicitly asks the AI to help enable the required capabilities, the AI may guide them through the App settings. If desktop control is available, it may also open the Codex App settings and select the required options directly. The AI may also create, inspect, and validate Luna Max or Terra Max custom agent configurations in `~/.codex/agents/` or `.codex/agents/`. This exception does not permit reading the original project, analyzing the original task, or advancing any main-thread work.
+唯一允許的修復例外：若使用者明確要求 AI 協助開啟必要能力，AI 可以指引 App 設定；若目前環境提供桌面控制能力，也可以直接開啟 Codex App 設定並勾選必要選項。AI 也可以建立、檢查與驗證 `~/.codex/agents/`／`.codex/agents/` 中的 Luna Max 或 Terra Max custom agent 設定。此例外不得延伸到讀取原專案、分析原任務或推進任何主線工作。
 
-### Required response when Luna Max is unavailable
+### Luna Max 不可用時的必要回覆
 
-State precisely whether `gpt-5.6-luna`, Luna's `max` reasoning, or both are missing. Then provide the following steps and end the response:
+準確指出缺少的是 `gpt-5.6-luna`、Luna 的 `max` reasoning，或兩者，然後提供以下步驟並結束回覆：
 
-1. In the Codex desktop App, locate the model/reasoning controls below the input box.
-2. Open **Advanced** and check whether `gpt-5.6-luna` can be selected. If Max is visible, it can be checked manually here. If the model picker hides Max, do not conclude that Luna Max is unavailable for that reason alone; continue checking the custom agent configuration, subagent tool declarations, and actual launch results.
-3. If the main thread was switched to Luna for this check, switch back to `gpt-5.6-sol` afterward. Luna must run as a subagent and must not replace Sol in the main thread.
-4. Treat the App's Max visibility setting as optional. Only if the user wants to select Max manually in the main task's composer, open **Settings** (macOS: Cmd+,; Windows: Ctrl+,) and enable Max under **Configuration** or the model/reasoning settings. If the user explicitly requests AI assistance and desktop control is available, select the option for them; otherwise, ask them to do it manually. An unchecked Max option must not trigger a hard stop by itself and does not affect an explicit `model_reasoning_effort = "max"` setting in a custom agent file.
-5. If Luna is absent from Advanced, check the account plan, the workspace administrator's model policies, and whether the current provider offers `gpt-5.6-luna`. Explain clearly that the skill itself cannot unlock a model that is not provided.
-6. If Luna and Max are available to the account but no dedicated subagent has been defined, instruct the user to create `~/.codex/agents/luna-max.toml` (personal) or `.codex/agents/luna-max.toml` (project) with the following content:
+1. 在 Codex 桌面 App 找到輸入框下方的 model／reasoning 控制。
+2. 開啟 **Advanced**，確認可以選擇 `gpt-5.6-luna`。若 Max 已顯示，可以在此手動確認；若 Max 被 model picker 隱藏，不要僅因此判定 Luna Max 不可用，繼續以 custom agent 設定、subagent 工具宣告與實際啟動結果確認。
+3. 若為了確認而將主線程切到 Luna，確認完成後切回 `gpt-5.6-sol`；Luna 必須作為 subagent，不得取代 Sol 主線程。
+4. 將 App 的 Max 顯示設定視為 optional。只有使用者想在主 task 的 composer 手動選擇 Max 時，才開啟 **Settings**（macOS：Cmd+,；Windows：Ctrl+,），在 **Configuration** 或模型／推理設定中勾選 Max。若使用者明確要求 AI 協助且目前環境提供桌面控制能力，可以直接替使用者勾選；若無法控制 App，再請使用者手動處理。Max 未勾選不得單獨觸發 hard stop，也不影響 custom agent 檔案明確指定的 `model_reasoning_effort = "max"`。
+5. 若 Advanced 中沒有 Luna，檢查帳號方案、工作區管理員的模型政策，以及目前 provider 是否提供 `gpt-5.6-luna`。明確說明 skill 本身無法解鎖未提供的模型。
+6. 若 Luna 與 Max 在帳號中可用，但尚未定義專用 subagent，指示使用者在 `~/.codex/agents/luna-max.toml`（個人）或 `.codex/agents/luna-max.toml`（專案）建立：
 
 ```toml
 name = "luna_max"
@@ -53,72 +53,72 @@ Handle only clear, bounded, repeatable tasks. Stay within the assigned scope, ve
 """
 ```
 
-This configuration only specifies the subagent's model and reasoning effort. It does not grant model access that the account does not already have.
+此設定只會指定 subagent 的模型與 reasoning，不會授予帳號原本沒有的模型權限。
 
-7. Return to this task and retry after setup. If the capability list has not refreshed, open a new task and invoke `$orchestrate-sol-terra-luna` again.
+7. 完成後回到此 task 重試；若能力清單沒有更新，開啟新 task 再觸發 `$orchestrate-sol-terra-luna`。
 
-Choose the closing message based on the configuration state rather than always repeating the same line:
+依設定狀態選擇結尾，不要無條件重複同一句：
 
-- **The AI has not yet created or validated the configuration**: use this final line:
+- **尚未由 AI 建立或驗證設定**：最後一行寫成：
 
-  > When finished, reply: **Luna Max is enabled**. If you would like AI assistance with setup, reply: **Please help me configure Luna Max.**
+  > 完成後請回覆：**Luna Max 已開啟**。若希望 AI 協助設定，請回覆：**請 AI 幫我設定 Luna Max**。
 
-- **The AI has created and validated `luna-max.toml`, but the current task has not reloaded the capabilities**: do not ask the user to enable Max in the App first or repeat the setup request. Use this final line instead:
+- **AI 已建立並驗證 `luna-max.toml`，但目前 task 尚未重新載入能力**：不要要求使用者先在 App 勾選 Max，也不要再提示「請 AI 幫我設定」。最後一行改成：
 
-  > The Luna Max configuration file is ready. If the capability list has not refreshed, reply: **Please duplicate the current task and test Luna Max.**
+  > Luna Max 設定檔已完成。若能力清單仍未更新，請回覆：**請 AI 複製目前 task 並測試 Luna Max**。
 
-After successfully creating and validating the configuration, do not ask the user again to reply "Please help me configure Luna Max."
+不得在已成功建立並驗證設定後，再次要求使用者回覆「請 AI 幫我設定 Luna Max」。
 
-Maintain the hard stop until both `gpt-5.6-luna` and `max` are confirmed available in the current environment.
+在目前執行環境重新確認 `gpt-5.6-luna` 與 `max` 都可用以前，持續 hard stop。
 
-### Terra Max is unavailable
+### Terra Max 不可用
 
-Apply the same hard-stop principle, adapting the Luna steps above for `gpt-5.6-terra`. Do not interpret "supports Max" as "necessarily supports Terra or Luna," and do not substitute models unless the user cancels this skill.
+採用相同 hard-stop 原則，將上述步驟中的 Luna 改為 `gpt-5.6-terra`。不要把「支援 Max」解讀成「一定支援 Terra 或 Luna」，也不要未經使用者取消此 skill 就替換模型。
 
-## 2. Map the work
+## 2. 建立任務地圖
 
-Sol first defines the overall objective, constraints, acceptance criteria, and dependencies, then routes tasks according to the nature of the work:
+由 Sol 先定義整體目標、限制、驗收條件與依賴關係，再依工作性質路由：
 
-| Role | Assigned work |
+| 角色 | 分派內容 |
 | --- | --- |
-| Sol main thread | Ambiguous requirements, architectural and cross-module decisions, task breakdown, conflict resolution, final acceptance, and integrated output |
-| Terra Max | Difficult but self-contained module analysis, nontrivial independent implementation, in-depth code review, security or concurrency reasoning, and complex root-cause investigation |
-| Luna Max | Code search and fact gathering, test execution and bug reproduction, log classification, mechanical edits, small features with precise specifications, and structured summaries |
+| Sol 主線程 | 模糊需求、架構與跨模組決策、任務拆解、衝突仲裁、最終驗收與整合輸出 |
+| Terra Max | 困難但可封裝的模組分析、非平凡獨立實作、深度程式碼審查、安全或併發推理、複雜根因排查 |
+| Luna Max | 程式碼搜尋與事實整理、測試執行與錯誤重現、日誌分類、機械式修改、規格非常明確的小功能與結構化摘要 |
 
-Do not delegate trivial tasks merely to use subagents. If core requirements remain unclear, Sol should resolve them first instead of relying solely on increased subagent reasoning effort.
+不要為了使用子代理而委派微小工作。核心需求仍不清楚時，先由 Sol 解決，不要只靠提高子代理 reasoning effort。
 
-## 3. Delegate with an explicit contract
+## 3. 用明確契約委派
 
-Every subagent prompt must include:
+每個子代理 prompt 都要包含：
 
-- **Objective**: describe one independently achievable outcome.
-- **Context and inputs**: provide the necessary files, symbols, errors, or specifications.
-- **Scope**: list the modules or files the agent may read and write.
-- **Restrictions**: identify interfaces, behaviors, and adjacent work that must not be changed.
-- **Completion criteria**: define verifiable acceptance criteria.
-- **Validation**: specify tests, type checks, lint checks, reproduction steps, or evidence.
-- **Report format**: request a summary, changed files, validation results, risks, and unresolved questions.
+- **目標**：只描述一個可獨立完成的成果。
+- **背景與輸入**：提供必要檔案、符號、錯誤或規格。
+- **範圍**：列出允許讀寫的模組或檔案。
+- **禁止事項**：指出不可變更的介面、行為與相鄰工作。
+- **完成條件**：定義可檢查的 acceptance criteria。
+- **驗證方式**：指定測試、型別檢查、lint、重現步驟或證據。
+- **回報格式**：要求摘要、變更檔案、驗證結果、風險與未解問題。
 
-Use a hub-and-spoke structure by default: Sol delegates directly to Terra and Luna, and both report directly to Sol. Do not let Terra manage Luna unless Terra has been authorized to take full ownership of an independent subsystem.
+預設採星狀協作：Sol 直接分派給 Terra 與 Luna，兩者直接回報 Sol。不要讓 Terra 再管理 Luna，除非 Terra 被授權完整承包一個獨立子系統。
 
-## 4. Control concurrent writes
+## 4. 控制並行寫入
 
-Parallelize only independent work. When multiple agents share a working directory, assign exclusive file or module ownership to each writing task. If scopes overlap, run the tasks sequentially or use isolated worktrees.
+只把互不依賴的工作平行化。多個代理共用工作目錄時，為每個寫入任務指定互斥的檔案或模組所有權；範圍重疊時改成循序執行或使用隔離 worktree。
 
-Suitable cross-checking patterns:
+適合的交叉檢查模式：
 
-- Terra implements a complex feature, Luna creates or runs focused tests, and Sol performs the final integration.
-- Luna completes a clearly specified change, Terra performs an in-depth review, and Sol decides whether to accept it.
-- Luna gathers reproduction and log evidence, Terra analyzes the root cause, and Sol decides on the cross-module fix.
+- Terra 實作複雜功能，Luna 建立或執行針對性測試，Sol 最終整合。
+- Luna 完成明確修改，Terra 做深度審查，Sol 判定是否接受。
+- Luna 收集重現與日誌證據，Terra 分析根因，Sol 決定跨模組修正方案。
 
-## 5. Verify and integrate
+## 5. 驗收並整合
 
-After all required results are available, Sol:
+等待所有必要結果後，由 Sol：
 
-1. Checks whether subagents stayed within scope and met their completion criteria.
-2. Directly inspects important diffs, file references, tests, and reproduction evidence rather than accepting summaries alone.
-3. Resolves conflicting conclusions using code and validation results.
-4. Performs integration validation appropriate to the level of risk.
-5. Reports the completed work, validation results, remaining risks, and the actual division of work among Sol, Terra Max, and Luna Max in the final response.
+1. 檢查子代理是否遵守範圍與完成條件。
+2. 直接查看重要 diff、檔案引用、測試與重現證據，不只接受摘要。
+3. 以程式碼與驗證結果解決互相矛盾的結論。
+4. 執行適合風險程度的整合驗證。
+5. 在最終輸出說明完成內容、驗證結果、剩餘風險，以及實際使用的 Sol、Terra Max 與 Luna Max 分工。
 
-Do not treat an agent's own claim of completion as final approval. Final responsibility remains with Sol in the main thread.
+不要把同一代理的「已完成」當成最終批准；最終責任留在 Sol 主線程。
