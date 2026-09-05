@@ -2,7 +2,7 @@
 
 > 本 README 以中文為主，英文版請見文末。
 
-一個 Codex skill，讓 GPT-6 Astra 留在主線程擔任總指揮：理解目標、拆分任務、做架構決策、檢查結果並整合輸出；並依工作性質把獨立子任務交給 GPT-5.6 Sol Medium 與 GPT-5.6 Luna Max。
+一個 Codex skill，讓目前主線程承擔 GPT-6 Astra 的總指揮角色：理解目標、拆分任務、做架構決策、檢查結果並整合輸出；並依工作性質把獨立子任務交給 GPT-5.6 Sol Medium 與 GPT-5.6 Luna Max。
 
 ## 角色分工
 
@@ -14,7 +14,8 @@
 
 ## 主要行為
 
-- 執行實質工作前先確認 GPT-6 Astra、GPT-5.6 Sol Medium 與 GPT-5.6 Luna Max 是否可用。
+- 目前主線程直接承擔 Astra 的統籌角色；skill 不自行判定、切換或要求切換主模型。
+- 委派前確認 GPT-5.6 Sol Medium 與 GPT-5.6 Luna Max subagent 是否可用。
 - 任一必要模型或指定 reasoning 不可用時，完整停止工作，不以其他模型或較低 reasoning 替代。
 - 能力齊全後，使用明確的目標、範圍、完成條件與驗證方式委派子任務。
 - 由 GPT-6 Astra 檢查重要 diff、測試與證據，並負責最終整合。
@@ -22,7 +23,7 @@
 ## 必要條件
 
 - Codex 支援 skills 與 subagents，且 subagent 工具可直接指定模型與 reasoning effort。
-- 主線程可使用 `gpt-6-astra`。
+- 建議主線程選用 `gpt-6-astra`，但這不是 skill 的 hard-stop 條件。
 - Sol Medium subagent 使用 `gpt-5.6-sol` 與 `medium` reasoning effort。
 - Luna Max subagent 使用 `gpt-5.6-luna` 與 `max` reasoning effort。
 
@@ -70,7 +71,7 @@ $three-tier-agent-orchestrator
 
 ### Three-Tier Agent Orchestrator
 
-A Codex skill that keeps GPT-6 Astra in the main thread as the lead orchestrator: understanding the objective, breaking down tasks, making architectural decisions, reviewing results, and integrating the final output while delegating independent subtasks to GPT-5.6 Sol Medium and GPT-5.6 Luna Max based on the nature of the work.
+A Codex skill that assigns the current main thread the GPT-6 Astra orchestration role: understanding the objective, breaking down tasks, making architectural decisions, reviewing results, and integrating the final output while delegating independent subtasks to GPT-5.6 Sol Medium and GPT-5.6 Luna Max based on the nature of the work.
 
 ### Role assignments
 
@@ -82,7 +83,8 @@ A Codex skill that keeps GPT-6 Astra in the main thread as the lead orchestrator
 
 ### Core behavior
 
-- Verify that GPT-6 Astra, GPT-5.6 Sol Medium, and GPT-5.6 Luna Max are available before starting substantive work.
+- The current main thread assumes the Astra orchestration role; the skill does not detect, switch, or require switching the main model.
+- Verify that the GPT-5.6 Sol Medium and GPT-5.6 Luna Max subagents are available before delegation.
 - If any required model or specified reasoning capability is unavailable, stop completely instead of substituting another model or using a lower reasoning level.
 - Once all capabilities are available, delegate subtasks with explicit objectives, scope, completion criteria, and validation methods.
 - GPT-6 Astra reviews important diffs, tests, and evidence, and is responsible for the final integration.
@@ -90,7 +92,7 @@ A Codex skill that keeps GPT-6 Astra in the main thread as the lead orchestrator
 ### Requirements
 
 - Codex supports skills and subagents, and the subagent tool can specify the model and reasoning effort directly.
-- The main thread can use `gpt-6-astra`.
+- Using `gpt-6-astra` for the main thread is recommended but is not a hard-stop condition.
 - The Sol Medium subagent uses `gpt-5.6-sol` with `medium` reasoning effort.
 - The Luna Max subagent uses `gpt-5.6-luna` with `max` reasoning effort.
 

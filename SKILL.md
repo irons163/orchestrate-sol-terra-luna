@@ -1,37 +1,38 @@
 ---
 name: three-tier-agent-orchestrator
-description: "讓 GPT-6 Astra 留在主線程（main thread）擔任總指揮，將困難但邊界清楚的工作交給 GPT-5.6 Sol Medium，將清楚、可重複的工作交給 GPT-5.6 Luna Max。當使用者要求 Astra 總指揮、Sol Medium 或 Luna Max subagent、分層 multi-agent coding、平行 code review、模組分析、獨立功能實作、測試、debugging 或整合結果時使用；開始前檢查模型與 reasoning 是否可用，若任一必要模型或 reasoning 組合不可用，完整停止所有工作並告知如何開啟，確認可用後才執行。"
+description: "讓主線程承擔 GPT-6 Astra 的總指揮角色，將困難但邊界清楚的工作交給 GPT-5.6 Sol Medium，將清楚、可重複的工作交給 GPT-5.6 Luna Max。當使用者要求 Astra 統籌、Sol Medium 或 Luna Max subagent、分層 multi-agent coding、平行 code review、模組分析、獨立功能實作、測試、debugging 或整合結果時使用；不要自行判定或要求切換主模型，委派前只檢查必要 subagent 的模型與 reasoning 是否可用。"
 ---
 
 # Three-Tier Agent Orchestration
 
-讓 Astra 保留主線程，負責理解目標、拆分任務、架構判斷、驗收與整合。把困難但邊界明確的工作交給 Sol Medium，把清楚、可重複且容易驗證的工作交給 Luna Max。
+讓目前主線程承擔 Astra 的統籌角色，負責理解目標、拆分任務、架構判斷、驗收與整合。把困難但邊界明確的工作交給 Sol Medium，把清楚、可重複且容易驗證的工作交給 Luna Max。
 
-## 1. 先做能力預檢（唯一允許的前置工作）
+## 1. 委派前確認 subagent 能力
 
-在理解、拆解或執行使用者的實質任務前，先檢查目前執行環境實際暴露的能力，不要依賴模型記憶或假設：
+目前主線程直接承擔 Astra 的統籌角色。Skill 無法可靠驗證或切換主線程的模型，因此不得根據自我辨識、模型名稱、系統提示或缺少可觀察資訊而停止工作，也不得要求使用者先切換主模型或取消模型限制。
 
-1. 在可觀察時，確認主線程使用 `gpt-6-astra`。若已知不是 Astra，套用完整 hard stop 並請使用者切換；若無法觀察，不要僅因此阻塞。
-2. 確認 subagent 工具可直接指定以下組合：
+在實際委派前，檢查目前執行環境暴露的 subagent 能力：
+
+1. 確認 subagent 工具可直接指定以下組合：
    - Sol Medium：`model = "gpt-5.6-sol"`、`reasoning_effort = "medium"`。
    - Luna Max：`model = "gpt-5.6-luna"`、`reasoning_effort = "max"`。
-3. 若工具宣告支援、但實際啟動遭模型或 reasoning 相容性拒絕，將該能力視為不可用。
-4. 只有主線程 Astra（在可觀察時）、Sol Medium 與 Luna Max 都確認可用後，才能進入第 2 節。
+2. 若工具宣告支援、但實際啟動遭模型或 reasoning 相容性拒絕，將該能力視為不可用。
+3. 只有 Sol Medium 與 Luna Max 都確認可用後，才能進入第 2 節。
 
 每次啟動 Sol Medium 或 Luna Max 時，直接傳入上述 `model` 與 `reasoning_effort`，不要依賴額外的 custom agent 設定檔。不要把 App 的 model picker 是否顯示 Max 當成能力預檢條件；以 subagent 工具宣告與實際啟動結果為準。
 
 ### 任一必要能力不可用：完整 hard stop
 
-若缺少主線程 Astra、`Sol Medium`、`Luna Max` 或其中任一必要模型／reasoning 組合，立即停止整個工作流，不只是停止委派。除確認能力與提供開啟說明外，不得執行任何工具或推進實質任務，包括：
+若缺少 `Sol Medium`、`Luna Max` 或其中任一必要模型／reasoning 組合，立即停止整個工作流，不只是停止委派。除確認 subagent 能力與提供開啟說明外，不得執行任何工具或推進實質任務，包括：
 
 - 不讀取或盤點專案、程式碼、文件與外部資料。
 - 不進行架構設計、法遵邊界、需求拆解、風險分析或測試規劃。
-- 不建立任何替代子代理，也不讓 Astra 單獨先做可安全推進的主線工作。
+- 不建立任何替代子代理，也不讓主線程單獨先做可安全推進的工作。
 - 不自行降級成其他模型／reasoning 設定。
 
 不得使用「這不妨礙 Astra 主線程先做……」之類的例外。此 skill 啟用期間，缺少必要能力就是完整停止條件。只有使用者明確取消此 skill 或明確改變所需模型組合時，才能採用其他工作流。
 
-唯一允許的修復例外：若使用者明確要求 AI 協助開啟必要能力，AI 可以指引 App 設定；若目前環境提供桌面控制能力，也可以直接協助檢查模型與 reasoning 選項。此例外不得延伸到讀取原專案、分析原任務或推進任何主線工作。
+唯一允許的修復例外：若使用者明確要求 AI 協助開啟必要 subagent 能力，AI 可以指引 App 設定；若目前環境提供桌面控制能力，也可以直接協助檢查模型與 reasoning 選項。此例外不得延伸到讀取原專案、分析原任務或推進任何主線工作。
 
 ### 必要模型或 reasoning 不可用
 
